@@ -36,7 +36,7 @@ DomoSchema.statics.toAPI = (doc) => ({
 DomoSchema.statics.toAPI = (ownerId, callback) => {
   const search = {
     // Convert the string ownerId to object id
-    owner: mongoose.Types.ObjectId(ownerId)
+    owner: mongoose.Types.ObjectId(ownerId),
   };
 
   return DomoModel.find(search).select('name age').lean().exec(callback);

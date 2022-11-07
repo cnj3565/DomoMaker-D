@@ -25,10 +25,10 @@ mongoose.connect(dbURI, (err) => {
   }
 });
 
-const redisURL = process.env.REDISCLOUD_URL ||
-  'redis://default:REDIS_CLOUD_PASSWORD@REDIS_CLOUD:REDIS_CLOUD_PORT';
+const redisURL = process.env.REDISCLOUD_URL
+  || 'redis://default:REDIS_CLOUD_PASSWORD@REDIS_CLOUD:REDIS_CLOUD_PORT';
 
-let redisClient = redis.createClient({
+const redisClient = redis.createClient({
   legacyMode: true,
   url: redisURL,
 });
@@ -37,7 +37,11 @@ redisClient.connect().catch(console.error);
 // part 2
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
+}));
+
 app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
 app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
 app.use(compression());
@@ -54,7 +58,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-  }
+  },
 }));
 
 app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
@@ -64,11 +68,11 @@ app.use(cookieParser());
 
 app.use(csrf());
 app.use((err, req, res, next) => {
-  if(err.code !== 'EBADSCRFTOKEN') return next(err);
+  if (err.code !== 'EBADSCRFTOKEN') return next(err);
 
   console.log('Missing CSRF Token!');
   return false;
-})
+});
 
 router(app);
 
